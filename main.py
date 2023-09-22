@@ -6,6 +6,28 @@ import tkinter as tk
 from tkinter import messagebox
 
 # Classes
+# Class Cube
+class Cube(object):
+    rows = 20
+    w = 500
+    def __init__(self, start, dirnx=1, dirny=0, color=(255, 0, 0)):
+        self.position = start
+        self.dirnx = 1
+        self.dirny = 0
+        self.color = color
+
+    def move(self, dirnx, dirny):
+        self.dirnx = dirnx
+        self.dirny = dirny
+        self.position(self.position[0] + self.dirnx, self.position[1] + self.dirny)
+
+    def draw(self, surface, eyes=False):
+        dis = self.w // self.rows
+        i = self.position[0]
+        j = self.position[1]
+
+        pygame.draw.rect(surface, self.color, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
+
 # Class Snake
 class Snake(object):
     body = []
@@ -17,6 +39,7 @@ class Snake(object):
         self.dirnx = 0
         self.dirny = 1
 
+    # Method to move the snake.
     def move(self):
         for event in pygame.events.get():
             if event.type == pygame.QUIT:
@@ -52,6 +75,21 @@ class Snake(object):
                 c.move(turn[0], turn[1])
                 if i == len(self.body)-1:
                     self.turns.pop(p)
+            else:
+                if  c.dirnx == -1 and c.postion[0] <= 0: c.position = (c.rows-1, c.position[1])
+                elif  c.dirny == 1 and c.postion[0] >= c.rows -1: c.position = (0, c.position[1])
+                elif  c.dirny == 1 and c.postion[1] >= c.rows -1: c.position = (c.position[0], 0)
+                elif  c.dirnx == -1 and c.postion[1] <= 0: c.position = (c.position[0], c.rows - 1)
+                else:
+                    c.move(c.dirnx, c.dirny)
+
+    # Method to draw the snake.
+    def draw(self, surface):
+        for i, c in enumerate(self.body):
+            if i == 0:
+                c.draw(surface, True)
+            else:
+                c.draw(surface)
 
 # Functions
 # Draws the game grid.
@@ -68,18 +106,19 @@ def draw_grid(w, rows, surface):
 
 # Redraws all objects on the playing window.
 def redraw_window(surface):
-    global rows, width
+    global rows, width, snake
+    snake.draw(surface)
     surface.fill((0, 0, 0))
     draw_grid(width, rows, surface)
     pygame.display.update()
 
 # Main game loop.
 def main():
-    global width, rows
+    global width, rows, snake
     width = 500
     rows = 20
     win = pygame.display.set_mode((width, width))
-    snake = snake((255, 0, 0), (10, 10))
+    snake = Snake((255, 0, 0), (10, 10))
     flag = True
 
     clock = pygame.time.Clock()
